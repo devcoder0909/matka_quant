@@ -155,4 +155,6 @@ async def get_latest_results(
             "close_patti": r.close_patti
         })
         
+    data.reverse()
+        
     return APIResponse(data=data, message="Latest results retrieved successfully")
