@@ -112,3 +112,47 @@ async def get_market(
     )
 
     return APIResponse(data=market_resp, message="Market retrieved successfully")
+
+@router.get(
+    "/{market_code}/latest",
+    response_model=APIResponse[list],
+    summary="Get latest market results",
+    description="Returns the most recent 7 results for the market to show what was last imported.",
+)
+async def get_latest_results(
+    market_code: str,
+    db: AsyncSession = Depends(get_db),
+) -> APIResponse[list]:
+    """Return the 7 most recent results for a market."""
+    market_result = await db.execute(
+        select(Market).where(Market.code == market_code.upper())
+    )
+    market = market_result.scalar_one_or_none()
+
+    if market is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Market with code '{market_code.upper()}' not found",
+        )
+
+    results_query = (
+        select(HistoricalResult)
+        .where(HistoricalResult.market_id == market.id)
+        .order_by(HistoricalResult.result_date.desc())
+        .limit(7)
+    )
+    
+    records = await db.execute(results_query)
+    
+    data = []
+    for r in records.scalars().all():
+        data.append({
+            "date": r.result_date.isoformat(),
+            "open_patti": r.open_patti,
+            "open_ank": r.open_ank,
+            "jodi": r.jodi,
+            "close_ank": r.close_ank,
+            "close_patti": r.close_patti
+        })
+        
+    return APIResponse(data=data, message="Latest results retrieved successfully")

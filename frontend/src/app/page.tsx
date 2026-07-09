@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { runAnalysis } from '@/lib/api';
+import { runAnalysis, getLatestMarketResults } from '@/lib/api';
 import ChartInput from '../components/input/ChartInput';
 
 export default function Home() {
   const [predictions, setPredictions] = useState<any[]>([]);
+  const [latestResults, setLatestResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -22,8 +23,20 @@ export default function Home() {
     }
   };
 
+  const fetchLatestResults = async () => {
+    try {
+      const res = await getLatestMarketResults("KALYAN");
+      if (res?.data) {
+        setLatestResults(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchPredictions();
+    fetchLatestResults();
   }, [refreshKey]); // Refetches when refreshKey changes
 
   // Expose a way to refresh predictions after importing
@@ -37,8 +50,25 @@ export default function Home() {
       {/* Import Section */}
       <div className="w-full">
         <h2 className="text-xl font-mono text-zinc-500 mb-4 tracking-widest uppercase text-center">Data Gateway</h2>
-        <ChartInput />
+        <ChartInput onImportSuccess={handleImportSuccess} />
       </div>
+
+      {/* Latest Data Section */}
+      {latestResults.length > 0 && (
+        <div className="w-full bg-zinc-900/30 border border-zinc-800 rounded-lg p-6">
+          <h3 className="text-sm font-mono text-zinc-400 mb-4 uppercase tracking-wider">Latest Imported Results (Kalyan)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
+            {latestResults.map((r, i) => (
+              <div key={i} className="flex flex-col items-center p-3 bg-black/40 border border-zinc-800/50 rounded-md">
+                <div className="text-[10px] text-zinc-500 mb-1">{r.date}</div>
+                <div className="text-sm font-mono text-zinc-300">
+                  {r.open_patti}-{r.jodi}-{r.close_patti}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Prediction Section */}
       <div className="w-full flex flex-col items-center border-t border-zinc-900 pt-12">

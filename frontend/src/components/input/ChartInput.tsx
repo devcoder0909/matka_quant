@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button';
 import { importChart } from '@/lib/api';
 import type { ImportStats } from '@/lib/types';
 
-export default function ChartInput() {
+export default function ChartInput({ onImportSuccess }: { onImportSuccess?: () => void }) {
   const [rawHtml, setRawHtml] = useState('');
   const [marketCode, setMarketCode] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -24,6 +24,7 @@ export default function ChartInput() {
       const res = await importChart(rawHtml, marketCode || undefined);
       setResult(res);
       setRawHtml('');
+      if (onImportSuccess) onImportSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Import failed');
     } finally {

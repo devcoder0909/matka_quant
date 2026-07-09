@@ -42,6 +42,10 @@ export async function getMarkets(): Promise<Market[]> {
   return fetchApi<Market[]>('/markets');
 }
 
+export async function getLatestMarketResults(marketCode: string): Promise<any> {
+  return fetchApi<any>(`/markets/${marketCode}/latest`);
+}
+
 // ─── Import ──────────────────────────────────────────────────────────────────
 
 export async function importChart(
