@@ -21,7 +21,11 @@ engine = create_async_engine(
     future=True,
     pool_pre_ping=True,  # Crucial for Supabase to avoid dropped connection errors
     pool_recycle=3600,   # Recycle connections after an hour
-    connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
+    connect_args=(
+        {"prepared_statement_cache_size": 0, "statement_cache_size": 0} 
+        if "postgresql" in settings.DATABASE_URL 
+        else {"check_same_thread": False}
+    ),
 )
 
 # ── Session factory ───────────────────────────────────────────────────────────
