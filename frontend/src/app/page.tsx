@@ -1,128 +1,50 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import CommandInput from '../components/input/CommandInput';
-import ChartInput from '../components/input/ChartInput';
-import FileUpload from '../components/input/FileUpload';
-import Card from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
-import Button from '../components/ui/Button';
-import PredictionMatrix from '../components/analysis/PredictionMatrix';
-import BacktestTerminal from '../components/analysis/BacktestTerminal';
+import { runAnalysis } from '@/lib/api';
 
-export default function Dashboard() {
-  const [activeMarket, setActiveMarket] = useState("KALYAN");
-  
+export default function Home() {
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPredictions = async () => {
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const data = await runAnalysis("KALYAN", today);
+        setPredictions(data?.summary?.quantum_predictions?.predictions?.top_jodis || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPredictions();
+  }, []);
+
   return (
-    <div className="flex min-h-screen bg-[#0a0e1a] text-zinc-300 font-sans">
-      <main className="flex-1 w-full p-4 sm:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
-            
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
-              <div>
-                <h1 className="text-4xl font-black tracking-tight mb-2">
-                  MATKA <span className="text-gradient">QUANTUM AI</span>
-                </h1>
-                <p className="text-zinc-400 font-mono text-sm">
-                  PROJECT TRINETRA // INTELLIGENCE DASHBOARD
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant="neutral" dot pulse>SYSTEM ONLINE</Badge>
-                <div className="text-xs font-mono text-zinc-500 bg-black/30 px-3 py-1.5 rounded-full border border-white/5">
-                  MODEL: TR-2026.4
-                </div>
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
+      <h1 className="text-2xl font-mono text-zinc-500 mb-8 tracking-widest uppercase">Trinetra Prediction Output</h1>
+      
+      {loading ? (
+        <div className="text-zinc-600 font-mono animate-pulse tracking-widest">CALCULATING...</div>
+      ) : predictions.length === 0 ? (
+        <div className="text-rose-500 font-mono">ERROR: INSUFFICIENT DATA</div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+          {predictions.map((p, i) => (
+            <div 
+              key={i} 
+              className="flex flex-col items-center justify-center p-8 bg-zinc-900/50 rounded-xl border border-zinc-800 transition-all hover:bg-zinc-800/80 hover:border-zinc-600"
+            >
+              <div className="text-5xl font-black text-zinc-100 mb-2">{p.jodi}</div>
+              <div className="text-xs font-mono text-cyan-500 tracking-widest">
+                {(p.probability * 100).toFixed(1)}%
               </div>
             </div>
-
-            {/* Main Analysis Dashboard (Phase 2 Grid) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <PredictionMatrix marketCode={activeMarket} />
-                <BacktestTerminal marketCode={activeMarket} />
-              </div>
-              
-              <div className="space-y-6">
-                <CommandInput />
-                <FileUpload />
-                <ChartInput />
-              </div>
-            </div>
-            
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card title="Active Market" className="bg-card/80 backdrop-blur">
-                <div className="text-3xl font-bold text-primary-400">{activeMarket}</div>
-                <div className="text-sm text-zinc-500 mt-1">Status: Open</div>
-              </Card>
-              <Card title="Data Quality" className="bg-card/80 backdrop-blur">
-                <div className="text-3xl font-bold text-success-400">98.5%</div>
-                <div className="text-sm text-zinc-500 mt-1">Validated Records</div>
-              </Card>
-              <Card title="Last Analysis" className="bg-card/80 backdrop-blur">
-                <div className="text-3xl font-bold text-zinc-100">Today</div>
-                <div className="text-sm text-zinc-500 mt-1">Full frequency scan</div>
-              </Card>
-              <Card title="System Load" className="bg-card/80 backdrop-blur">
-                <div className="text-3xl font-bold text-emerald-400">Normal</div>
-                <div className="text-sm text-zinc-500 mt-1">All modules online</div>
-              </Card>
-            </div>
-
-            
-            {/* Placeholder for Research Watchlist (Phase 1 Output) */}
-            <Card title="Research Watchlist — Candidates" className="min-h-[300px]">
-              <div className="flex items-center justify-between mb-4">
-                <div className="space-x-2">
-                  <Button variant="primary" size="sm">Ank Candidates</Button>
-                  <Button variant="secondary" size="sm">Jodi Candidates</Button>
-                  <Button variant="secondary" size="sm">Patti Candidates</Button>
-                </div>
-                <Badge variant="warning">Statistical Research Only</Badge>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                 <div className="p-4 bg-black/40 rounded-lg border border-zinc-800">
-                    <div className="text-sm text-zinc-400 mb-1">Top Ank Candidate</div>
-                    <div className="text-5xl font-bold text-white mb-3">6</div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-zinc-500">Research Score</span>
-                      <span className="text-primary-400 font-mono">87/100</span>
-                    </div>
-                    <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-primary-400 h-full w-[87%]"></div>
-                    </div>
-                 </div>
-                 
-                 <div className="p-4 bg-black/40 rounded-lg border border-zinc-800">
-                    <div className="text-sm text-zinc-400 mb-1">Top Jodi Candidate</div>
-                    <div className="text-5xl font-bold text-white mb-3">65</div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-zinc-500">Research Score</span>
-                      <span className="text-primary-400 font-mono">72/100</span>
-                    </div>
-                    <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-primary-400 h-full w-[72%]"></div>
-                    </div>
-                 </div>
-                 
-                 <div className="p-4 bg-black/40 rounded-lg border border-zinc-800">
-                    <div className="text-sm text-zinc-400 mb-1">Top Open Patti</div>
-                    <div className="text-5xl font-bold text-white mb-3">123</div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-zinc-500">Research Score</span>
-                      <span className="text-primary-400 font-mono">68/100</span>
-                    </div>
-                    <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-primary-400 h-full w-[68%]"></div>
-                    </div>
-                 </div>
-              </div>
-            </Card>
-
-          </div>
-        </main>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
