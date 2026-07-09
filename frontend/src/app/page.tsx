@@ -6,9 +6,9 @@ import Sidebar from '../components/layout/Sidebar';
 import CommandInput from '../components/input/CommandInput';
 import ChartInput from '../components/input/ChartInput';
 import FileUpload from '../components/input/FileUpload';
-import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import Button from '../components/ui/Button';
 
 export default function Dashboard() {
   const [activeMarket, setActiveMarket] = useState("KALYAN");
