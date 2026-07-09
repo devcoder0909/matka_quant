@@ -152,7 +152,7 @@ export default function CommandInput() {
                 }`}
               >
                 {entry.response.message}
-                {entry.response.data && (
+                {!!entry.response.data && (
                   <pre className="mt-1 text-gray-500 text-[10px] max-h-32 overflow-auto">
                     {JSON.stringify(entry.response.data, null, 2)}
                   </pre>
