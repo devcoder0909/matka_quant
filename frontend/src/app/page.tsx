@@ -15,9 +15,23 @@ export default function Home() {
     try {
       const today = new Date().toISOString().split('T')[0];
       const data = await runAnalysis("KALYAN", today);
-      setPredictions(data?.summary?.quantum_predictions?.predictions?.top_jodis || []);
+      
+      if (data && data.candidates) {
+        // Map candidates to the format expected by UI
+        const mappedPredictions = data.candidates
+          .filter((c: any) => c.candidate_type === 'jodi')
+          .slice(0, 10)
+          .map((c: any) => ({
+            jodi: c.candidate_value,
+            probability: c.model_probability || (c.research_score / 1000)
+          }));
+        setPredictions(mappedPredictions);
+      } else {
+        setPredictions([]);
+      }
     } catch (err) {
       console.error(err);
+      setPredictions([]);
     } finally {
       setLoading(false);
     }
@@ -44,6 +58,14 @@ export default function Home() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const formatDate = (dateStr: string) => {
+    try {
+      return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    } catch (e) {
+      return dateStr;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black text-white p-4 md:p-8 space-y-12 max-w-5xl mx-auto">
       
@@ -60,9 +82,9 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
             {latestResults.map((r, i) => (
               <div key={i} className="flex flex-col items-center p-3 bg-black/40 border border-zinc-800/50 rounded-md">
-                <div className="text-[10px] text-zinc-500 mb-1">{r.date}</div>
+                <div className="text-[10px] text-zinc-500 mb-1">{formatDate(r.date)}</div>
                 <div className="text-sm font-mono text-zinc-300">
-                  {r.open_patti}-{r.jodi}-{r.close_patti}
+                  {r.open_patti || '***'}-{r.jodi || '**'}-{r.close_patti || '***'}
                 </div>
               </div>
             ))}
