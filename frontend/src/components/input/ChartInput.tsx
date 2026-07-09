@@ -80,9 +80,9 @@ export default function ChartInput() {
             id="import-chart-btn"
             onClick={handleImport}
             loading={isImporting}
-            disabled={!rawHtml.trim()}
+            disabled={!rawHtml.trim() || isImporting}
           >
-            Import Chart
+            {isImporting ? 'Importing Data... Please wait' : 'Import Chart'}
           </Button>
           {rawHtml.trim() && (
             <span className="text-xs text-gray-500">

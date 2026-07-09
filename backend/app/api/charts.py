@@ -94,13 +94,19 @@ async def _store_results(
     records: list[dict],
 ) -> tuple[int, int]:
     """
-    Persist validated records into historical_results.
-
-    Returns:
-        (inserted_count, duplicate_count)
+    Persist validated records into historical_results using bulk operations.
+    Returns: (inserted_count, duplicate_count)
     """
     inserted = 0
     duplicates = 0
+
+    # Bulk query all existing dates for this market to avoid N+1 queries
+    existing_result = await db.execute(
+        select(HistoricalResult.result_date).where(HistoricalResult.market_id == market.id)
+    )
+    existing_dates = {row[0] for row in existing_result.all()}
+
+    new_records_to_insert = []
 
     for rec in records:
         # Parse the date
@@ -115,16 +121,12 @@ async def _store_results(
         if not isinstance(result_date, date):
             continue
 
-        # Check for existing record
-        existing = await db.execute(
-            select(HistoricalResult).where(
-                HistoricalResult.market_id == market.id,
-                HistoricalResult.result_date == result_date,
-            )
-        )
-        if existing.scalar_one_or_none() is not None:
+        if result_date in existing_dates:
             duplicates += 1
             continue
+            
+        # Also ensure we don't insert duplicates within the SAME batch
+        existing_dates.add(result_date)
 
         # Parse ank values
         open_ank = rec.get("open_ank")
@@ -150,10 +152,11 @@ async def _store_results(
             close_patti=rec.get("close_patti"),
             is_validated=True,
         )
-        db.add(hist)
+        new_records_to_insert.append(hist)
         inserted += 1
 
-    if inserted > 0:
+    if new_records_to_insert:
+        db.add_all(new_records_to_insert)
         await db.flush()
 
     return inserted, duplicates
