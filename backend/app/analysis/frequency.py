@@ -306,7 +306,7 @@ def analyze_frequencies(
     """
     if target_date:
         try:
-            t_dt = datetime.strptime(target_date, "%Y-%m-%d")
+            t_dt = datetime.strptime(str(target_date), "%Y-%m-%d")
         except ValueError:
             t_dt = datetime.now()
     else:
