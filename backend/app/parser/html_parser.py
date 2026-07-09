@@ -315,25 +315,11 @@ def _extract_weekly_grid(table: Tag, market_name: Optional[str], grid_type: str)
     # Determine the number of day columns from header
     header_row = rows[0]
     header_cells = header_row.find_all(["th", "td"])
-    header_texts = [_clean_cell_text(c).lower() for c in header_cells]
+    
+    # Calculate true number of logical columns including colspans
+    day_col_count = sum(1 for c in header_cells if any(dn in _clean_cell_text(c).lower() for dn in ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "monday", "tuesday"]))
+    num_days = max(day_col_count, 6)
 
-    # Find day columns
-    day_col_indices: list[int] = []
-    day_names_ordered = ["mon", "tue", "wed", "thu", "fri", "sat"]
-    full_day_names = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-
-    for idx, txt in enumerate(header_texts):
-        for dn in day_names_ordered + full_day_names:
-            if dn in txt:
-                day_col_indices.append(idx)
-                break
-
-    if not day_col_indices:
-        # Fallback: assume columns 1-6 are Mon-Sat (column 0 is week/date)
-        max_cols = max((len(r.find_all(["td", "th"])) for r in rows), default=7)
-        day_col_indices = list(range(1, min(max_cols, 7)))
-
-    num_days = len(day_col_indices)
     records: list[dict] = []
 
     for row in rows[1:]:
@@ -342,52 +328,100 @@ def _extract_weekly_grid(table: Tag, market_name: Optional[str], grid_type: str)
         if not texts:
             continue
 
-        # First column usually has date range
-        first_col = texts[0] if texts else ""
+        first_col = texts[0]
         week_dates = _dates_for_week_row(first_col, num_days)
 
-        for day_idx, col_idx in enumerate(day_col_indices):
-            if col_idx >= len(texts):
-                continue
-            cell_text = texts[col_idx].strip()
-            if _is_placeholder(cell_text):
-                continue
+        # Check if this is a 3-column per day layout (e.g. 19 cells for 6 days: 1 date + 6*3)
+        # or (22 cells for 7 days: 1 date + 7*3)
+        is_3col_layout = len(texts) >= (1 + num_days * 3) - 2 and len(texts) > 10
 
-            record: Dict[str, Any] = {
-                "date": week_dates[day_idx] if day_idx < len(week_dates) else None,
-                "open_patti": None,
-                "open_ank": None,
-                "jodi": None,
-                "close_ank": None,
-                "close_patti": None,
-                "market_name": market_name,
-            }
+        if is_3col_layout:
+            for day_idx in range(num_days):
+                base_idx = 1 + (day_idx * 3)
+                if base_idx + 1 >= len(texts):
+                    continue
+                
+                open_text = "".join(texts[base_idx].split()) if base_idx < len(texts) else ""
+                jodi_text = "".join(texts[base_idx + 1].split()) if base_idx + 1 < len(texts) else ""
+                close_text = "".join(texts[base_idx + 2].split()) if base_idx + 2 < len(texts) else ""
 
-            if grid_type == "weekly_panel":
-                m5 = RE_5PART.search(cell_text)
-                m3 = RE_3PART.search(cell_text)
-                if m5:
-                    record["open_patti"] = m5.group(1)
-                    record["open_ank"] = int(m5.group(2))
-                    record["jodi"] = m5.group(3)
-                    record["close_ank"] = int(m5.group(4))
-                    record["close_patti"] = m5.group(5)
-                elif m3:
-                    record["open_patti"] = m3.group(1)
-                    record["jodi"] = m3.group(2)
-                    record["close_patti"] = m3.group(3)
-                    record["open_ank"] = _digit_sum_mod10(m3.group(1))
-                    record["close_ank"] = _digit_sum_mod10(m3.group(3))
-            else:
-                # weekly_jodi
-                m_jodi = RE_JODI_ONLY.match(cell_text)
-                if m_jodi:
-                    record["jodi"] = m_jodi.group(1)
-                    record["open_ank"] = int(m_jodi.group(1)[0])
-                    record["close_ank"] = int(m_jodi.group(1)[1])
+                if _is_placeholder(jodi_text) and not open_text and not close_text:
+                    continue
 
-            if record["jodi"] or record["open_patti"]:
-                records.append(record)
+                m_jodi = RE_JODI_ONLY.match(jodi_text)
+                jodi = m_jodi.group(1) if m_jodi else None
+
+                open_patti = open_text if len(open_text) == 3 and open_text.isdigit() else None
+                close_patti = close_text if len(close_text) == 3 and close_text.isdigit() else None
+
+                record = {
+                    "date": week_dates[day_idx] if day_idx < len(week_dates) else None,
+                    "open_patti": open_patti,
+                    "open_ank": _digit_sum_mod10(open_patti) if open_patti else (int(jodi[0]) if jodi else None),
+                    "jodi": jodi,
+                    "close_ank": _digit_sum_mod10(close_patti) if close_patti else (int(jodi[1]) if jodi else None),
+                    "close_patti": close_patti,
+                    "market_name": market_name,
+                }
+                
+                if record["jodi"] or record["open_patti"]:
+                    records.append(record)
+                    
+        else:
+            # 1-column per day layout (Jodi or single-cell panel)
+            for day_idx in range(num_days):
+                col_idx = day_idx + 1
+                if col_idx >= len(texts):
+                    continue
+                
+                cell_text = texts[col_idx].strip()
+                if _is_placeholder(cell_text):
+                    continue
+
+                record = {
+                    "date": week_dates[day_idx] if day_idx < len(week_dates) else None,
+                    "open_patti": None,
+                    "open_ank": None,
+                    "jodi": None,
+                    "close_ank": None,
+                    "close_patti": None,
+                    "market_name": market_name,
+                }
+
+                if grid_type == "weekly_panel" or "-" in cell_text or len(cell_text.replace(" ", "")) >= 8:
+                    # Could be "123-55-123" or "1 2 3 55 1 2 3"
+                    cleaned = "".join(cell_text.split())
+                    if len(cleaned) >= 8:
+                        if len(cleaned) == 8: # 123 55 123
+                            record["open_patti"] = cleaned[0:3]
+                            record["jodi"] = cleaned[3:5]
+                            record["close_patti"] = cleaned[5:8]
+                            record["open_ank"] = _digit_sum_mod10(record["open_patti"])
+                            record["close_ank"] = _digit_sum_mod10(record["close_patti"])
+                    else:
+                        m5 = RE_5PART.search(cell_text)
+                        m3 = RE_3PART.search(cell_text)
+                        if m5:
+                            record["open_patti"] = m5.group(1)
+                            record["open_ank"] = int(m5.group(2))
+                            record["jodi"] = m5.group(3)
+                            record["close_ank"] = int(m5.group(4))
+                            record["close_patti"] = m5.group(5)
+                        elif m3:
+                            record["open_patti"] = m3.group(1)
+                            record["jodi"] = m3.group(2)
+                            record["close_patti"] = m3.group(3)
+                            record["open_ank"] = _digit_sum_mod10(m3.group(1))
+                            record["close_ank"] = _digit_sum_mod10(m3.group(3))
+                else:
+                    m_jodi = RE_JODI_ONLY.match(cell_text)
+                    if m_jodi:
+                        record["jodi"] = m_jodi.group(1)
+                        record["open_ank"] = int(m_jodi.group(1)[0])
+                        record["close_ank"] = int(m_jodi.group(1)[1])
+
+                if record["jodi"] or record["open_patti"]:
+                    records.append(record)
 
     return records
 
