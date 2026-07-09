@@ -84,7 +84,7 @@ def _is_placeholder(text: str) -> bool:
 
 def _extract_market_name(soup: BeautifulSoup) -> Optional[str]:
     """Try to extract market name from page title or headings."""
-    from backend.app.parser.detector import detect_market as _detect
+    from app.parser.detector import detect_market as _detect
 
     candidates: list[str] = []
     if soup.title and soup.title.string:

@@ -216,7 +216,7 @@ def parse_csv_data(file_content: bytes, filename: str = "") -> List[Dict[str, An
     # Market name from filename
     market_name: Optional[str] = None
     if filename:
-        from backend.app.parser.detector import detect_market
+        from app.parser.detector import detect_market
         market_name_code = detect_market([], filename)
         if market_name_code != "UNKNOWN":
             market_name = market_name_code

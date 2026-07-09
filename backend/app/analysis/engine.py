@@ -13,8 +13,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from backend.app.analysis.frequency import analyze_frequencies
-from backend.app.analysis.ensemble import calculate_ensemble_scores
+from app.analysis.frequency import analyze_frequencies
+from app.analysis.ensemble import calculate_ensemble_scores
 
 logger = logging.getLogger(__name__)
 

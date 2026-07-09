@@ -17,13 +17,13 @@ All parsers return a unified list[dict] format:
     }
 """
 
-from backend.app.parser.html_parser import parse_html_chart
-from backend.app.parser.csv_parser import parse_csv_data
-from backend.app.parser.json_parser import parse_json_data
-from backend.app.parser.text_parser import parse_text_data
-from backend.app.parser.detector import detect_market, detect_date_format
-from backend.app.parser.normalizer import normalize_records
-from backend.app.parser.validator import validate_records, ValidationResult
+from app.parser.html_parser import parse_html_chart
+from app.parser.csv_parser import parse_csv_data
+from app.parser.json_parser import parse_json_data
+from app.parser.text_parser import parse_text_data
+from app.parser.detector import detect_market, detect_date_format
+from app.parser.normalizer import normalize_records
+from app.parser.validator import validate_records, ValidationResult
 
 __all__ = [
     "parse_html_chart",

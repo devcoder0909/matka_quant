@@ -138,7 +138,7 @@ def parse_text_data(text: str) -> List[Dict[str, Any]]:
     # Try to detect market from the whole text
     market_name: Optional[str] = None
     try:
-        from backend.app.parser.detector import detect_market
+        from app.parser.detector import detect_market
         code = detect_market([], text)
         if code != "UNKNOWN":
             market_name = code

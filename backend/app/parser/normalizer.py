@@ -17,7 +17,7 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from backend.app.parser.detector import detect_date_format
+from app.parser.detector import detect_date_format
 
 logger = logging.getLogger(__name__)
 
