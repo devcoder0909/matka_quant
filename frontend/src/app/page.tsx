@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Header from '../components/layout/Header';
-import Sidebar from '../components/layout/Sidebar';
 import CommandInput from '../components/input/CommandInput';
 import ChartInput from '../components/input/ChartInput';
 import FileUpload from '../components/input/FileUpload';
@@ -11,19 +9,14 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import PredictionMatrix from '../components/analysis/PredictionMatrix';
 import BacktestTerminal from '../components/analysis/BacktestTerminal';
-import type { NavSection } from '@/lib/types';
 
 export default function Dashboard() {
   const [activeMarket, setActiveMarket] = useState("KALYAN");
-  const [activeSection, setActiveSection] = useState<NavSection>("dashboard");
   
   return (
-    <div className="flex h-screen bg-background text-zinc-300 font-sans overflow-hidden">
-      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-auto p-6 bg-[#0a0e1a]">
-          <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+    <div className="flex min-h-screen bg-[#0a0e1a] text-zinc-300 font-sans">
+      <main className="flex-1 w-full p-4 sm:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto space-y-8 animate-fade-in">
             
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
@@ -130,7 +123,6 @@ export default function Dashboard() {
 
           </div>
         </main>
-      </div>
     </div>
   );
 }
