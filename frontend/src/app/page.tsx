@@ -11,10 +11,11 @@ import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
 import PredictionMatrix from '../components/analysis/PredictionMatrix';
 import BacktestTerminal from '../components/analysis/BacktestTerminal';
+import type { NavSection } from '@/lib/types';
 
 export default function Dashboard() {
   const [activeMarket, setActiveMarket] = useState("KALYAN");
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState<NavSection>("dashboard");
   
   return (
     <div className="flex h-screen bg-background text-zinc-300 font-sans overflow-hidden">
