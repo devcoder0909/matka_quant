@@ -8,7 +8,8 @@ import uvicorn
 import logging
 
 from app.config import settings
-from app.database import init_db
+from app.database import init_db, async_session
+from app.models.market import seed_markets
 from app.api.router import api_router
 
 # Setup logging
@@ -20,6 +21,13 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting up Project Trinetra API...")
     await init_db()
+    
+    # Seed markets
+    async with async_session() as session:
+        inserted = await seed_markets(session)
+        if inserted > 0:
+            logger.info(f"Seeded {inserted} markets.")
+    
     yield
     # Shutdown
     logger.info("Shutting down Project Trinetra API...")
