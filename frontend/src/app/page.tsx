@@ -14,10 +14,11 @@ import BacktestTerminal from '../components/analysis/BacktestTerminal';
 
 export default function Dashboard() {
   const [activeMarket, setActiveMarket] = useState("KALYAN");
+  const [activeSection, setActiveSection] = useState("dashboard");
   
   return (
     <div className="flex h-screen bg-background text-zinc-300 font-sans overflow-hidden">
-      <Sidebar />
+      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-auto p-6 bg-[#0a0e1a]">
