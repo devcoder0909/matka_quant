@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card } from '../ui/Card';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
+import Card from '../ui/Card';
+import Badge from '../ui/Badge';
+import Button from '../ui/Button';
 
 export default function PredictionMatrix() {
   const [activeTab, setActiveTab] = useState('jodi');

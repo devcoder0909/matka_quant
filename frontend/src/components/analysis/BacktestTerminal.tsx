@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card } from '../ui/Card';
-import { Button } from '../ui/Button';
-import { Badge } from '../ui/Badge';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
+import Badge from '../ui/Badge';
 
 export default function BacktestTerminal() {
   const [running, setRunning] = useState(false);
