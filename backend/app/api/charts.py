@@ -52,7 +52,8 @@ try:
     from app.parser.json_parser import parse_json_data  # type: ignore[import-untyped]
     from app.parser.text_parser import parse_text_data  # type: ignore[import-untyped]
     from app.parser.detector import detect_market  # type: ignore[import-untyped]
-    from app.parser.validator import validate_records, normalize_records  # type: ignore[import-untyped]
+    from app.parser.validator import validate_records  # type: ignore[import-untyped]
+    from app.parser.normalizer import normalize_records  # type: ignore[import-untyped]
 
     _PARSER_AVAILABLE = True
 except ImportError as exc:
