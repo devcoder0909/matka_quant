@@ -81,10 +81,19 @@ export async function uploadFile(
 export async function runAnalysis(
   marketCode: string,
   targetDate: string
-): Promise<AnalysisResult> {
-  return fetchApi<AnalysisResult>('/analysis/run', {
+): Promise<any> {
+  return fetchApi<any>('/analysis/run', {
     method: 'POST',
     body: JSON.stringify({ market_code: marketCode, target_date: targetDate }),
+  });
+}
+
+export async function runBacktest(
+  marketCode: string,
+  days: number = 30
+): Promise<any> {
+  return fetchApi<any>(`/backtest/run/${marketCode}?days=${days}`, {
+    method: 'POST',
   });
 }
 

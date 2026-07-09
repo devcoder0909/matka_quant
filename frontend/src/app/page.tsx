@@ -46,8 +46,8 @@ export default function Dashboard() {
             {/* Main Analysis Dashboard (Phase 2 Grid) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <PredictionMatrix />
-                <BacktestTerminal />
+                <PredictionMatrix marketCode={activeMarket} />
+                <BacktestTerminal marketCode={activeMarket} />
               </div>
               
               <div className="space-y-6">

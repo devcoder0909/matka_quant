@@ -16,8 +16,9 @@ router = APIRouter()
 
 class CommandRequest(BaseModel):
     command: str
+from typing import Any
 
-@router.post("/run", response_model=AnalysisResponse)
+@router.post("/run", response_model=Any)
 async def start_analysis(request: AnalysisRequest, db: AsyncSession = Depends(get_db)):
     """
     Run Trinetra analysis on a specific market up to a target date.

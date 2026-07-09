@@ -4,28 +4,34 @@ import React, { useState } from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
+import { runBacktest } from '@/lib/api';
 
-export default function BacktestTerminal() {
+interface BacktestTerminalProps {
+  marketCode?: string;
+}
+
+export default function BacktestTerminal({ marketCode = 'KALYAN' }: BacktestTerminalProps) {
   const [running, setRunning] = useState(false);
   const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const runSimulation = () => {
+  const runSimulation = async () => {
+    if (!marketCode) return;
     setRunning(true);
-    // Simulate API delay
-    setTimeout(() => {
+    setError(null);
+    try {
+      const data = await runBacktest(marketCode, 30); // 30 day backtest window
+      setResults(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Simulation failed');
+    } finally {
       setRunning(false);
-      setResults({
-        winRate: '34.2%',
-        baseline: '3.0%',
-        days: 30,
-        jodiHits: 10
-      });
-    }, 2000);
+    }
   };
 
   return (
-    <Card title="Walk-Forward Backtest Simulator" className="w-full">
-      {!results && !running && (
+    <Card title={`Walk-Forward Backtest Simulator — ${marketCode}`} className="w-full">
+      {!results && !running && !error && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <div className="w-16 h-16 rounded-full bg-cyan-900/30 flex items-center justify-center mb-4 border border-cyan-500/20">
             <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +42,7 @@ export default function BacktestTerminal() {
           <p className="text-sm text-zinc-400 max-w-md mb-6">
             Run a historical walk-forward simulation to evaluate the current predictive algorithm's accuracy against random guessing baselines.
           </p>
-          <Button onClick={runSimulation} size="lg">Start Backtest</Button>
+          <Button onClick={runSimulation} size="lg">Start 30-Day Backtest</Button>
         </div>
       )}
 
@@ -47,24 +53,36 @@ export default function BacktestTerminal() {
         </div>
       )}
 
+      {error && !running && (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-400 max-w-md w-full">
+            <p className="font-bold mb-1">Backtest Failed</p>
+            <p className="text-sm">{error}</p>
+          </div>
+          <div className="mt-6">
+             <Button variant="secondary" onClick={() => setError(null)}>Try Again</Button>
+          </div>
+        </div>
+      )}
+
       {results && !running && (
         <div className="animate-fade-in">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div className="p-4 bg-black/40 rounded-lg border border-white/5">
               <div className="text-xs text-zinc-500 mb-1">Time Horizon</div>
-              <div className="text-2xl font-bold text-white">{results.days} Days</div>
+              <div className="text-2xl font-bold text-white">{results.test_window_days} Days</div>
             </div>
             <div className="p-4 bg-black/40 rounded-lg border border-white/5">
-              <div className="text-xs text-zinc-500 mb-1">Top-3 Jodi Hits</div>
-              <div className="text-2xl font-bold text-emerald-400">{results.jodiHits}</div>
+              <div className="text-xs text-zinc-500 mb-1">Jodi Win Rate</div>
+              <div className="text-2xl font-bold text-emerald-400">{results.jodi_win_rate_top3}</div>
             </div>
             <div className="p-4 bg-black/40 rounded-lg border border-white/5">
               <div className="text-xs text-zinc-500 mb-1">Random Baseline</div>
-              <div className="text-2xl font-bold text-zinc-400">{results.baseline}</div>
+              <div className="text-2xl font-bold text-zinc-400">{results.random_baseline_jodi}</div>
             </div>
             <div className="p-4 bg-emerald-950/30 rounded-lg border border-emerald-500/30">
-              <div className="text-xs text-emerald-500 mb-1">AI Win Rate</div>
-              <div className="text-2xl font-bold text-emerald-400">{results.winRate}</div>
+              <div className="text-xs text-emerald-500 mb-1">Ank Win Rate</div>
+              <div className="text-2xl font-bold text-emerald-400">{results.ank_win_rate_top3}</div>
             </div>
           </div>
           <div className="flex justify-end">
