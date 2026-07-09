@@ -188,7 +188,24 @@ async def run_analysis(
     # ----- Run analysis -----
     frequency_results = analyze_frequencies(records, target_date)
     candidates = calculate_ensemble_scores(frequency_results, records)
+    
+    # Run Phase 2 Quantum Predictive Analysis
+    from app.analysis.predictive import analyze_predictive_signals
+    # We must mock a historical record list structure to pass to it since it expects objects
+    class MockRecord:
+        def __init__(self, data):
+            self.jodi = data.get("jodi")
+            self.open_ank = data.get("open_ank")
+            self.date = data.get("date")
+            
+    # Sort backwards for the Markov matrix (newest first)
+    sorted_records = sorted(records, key=lambda x: x["date"], reverse=True)
+    obj_records = [MockRecord(r) for r in sorted_records]
+    
+    quantum_predictions = analyze_predictive_signals(obj_records, target_date)
+    
     summary = _build_summary(candidates, frequency_results, records, target_date, market_code or "UNKNOWN")
+    summary["quantum_predictions"] = quantum_predictions
 
     analysis_result = {
         "summary": summary,

@@ -9,6 +9,8 @@ import FileUpload from '../components/input/FileUpload';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Button from '../components/ui/Button';
+import PredictionMatrix from '../components/analysis/PredictionMatrix';
+import BacktestTerminal from '../components/analysis/BacktestTerminal';
 
 export default function Dashboard() {
   const [activeMarket, setActiveMarket] = useState("KALYAN");
@@ -19,10 +21,39 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         <main className="flex-1 overflow-auto p-6 bg-[#0a0e1a]">
-          <div className="max-w-7xl mx-auto space-y-6">
+          <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
             
-            {/* Command Interface */}
-            <CommandInput />
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+              <div>
+                <h1 className="text-4xl font-black tracking-tight mb-2">
+                  MATKA <span className="text-gradient">QUANTUM AI</span>
+                </h1>
+                <p className="text-zinc-400 font-mono text-sm">
+                  PROJECT TRINETRA // INTELLIGENCE DASHBOARD
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="neutral" dot pulse>SYSTEM ONLINE</Badge>
+                <div className="text-xs font-mono text-zinc-500 bg-black/30 px-3 py-1.5 rounded-full border border-white/5">
+                  MODEL: TR-2026.4
+                </div>
+              </div>
+            </div>
+
+            {/* Main Analysis Dashboard (Phase 2 Grid) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <PredictionMatrix />
+                <BacktestTerminal />
+              </div>
+              
+              <div className="space-y-6">
+                <CommandInput />
+                <FileUpload />
+                <ChartInput />
+              </div>
+            </div>
             
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -43,12 +74,7 @@ export default function Dashboard() {
                 <div className="text-sm text-zinc-500 mt-1">All modules online</div>
               </Card>
             </div>
-            
-            {/* Import Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ChartInput />
-              <FileUpload />
-            </div>
+
             
             {/* Placeholder for Research Watchlist (Phase 1 Output) */}
             <Card title="Research Watchlist — Candidates" className="min-h-[300px]">
