@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/* ─── CSS Custom Properties ──────────────────────────────────────────────── */
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a2035;
+  --bg-card: rgba(17, 24, 39, 0.7);
+  --bg-card-hover: rgba(26, 32, 53, 0.8);
+  --border-subtle: rgba(56, 189, 248, 0.08);
+  --border-active: rgba(34, 211, 238, 0.3);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-cyan: #22d3ee;
+  --accent-emerald: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-rose: #fb7185;
+  --glow-cyan: 0 0 20px rgba(34, 211, 238, 0.15);
+  --glow-emerald: 0 0 20px rgba(52, 211, 153, 0.15);
+  --glass-blur: 12px;
+}
+
+/* ─── Google Fonts ───────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.2);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.4);
+}
+
+html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Background Pattern ─────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 211, 238, 0.05), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(52, 211, 153, 0.03), transparent),
+    linear-gradient(180deg, #0a0e1a 0%, #0d1220 50%, #0a0e1a 100%);
+  pointer-events: none;
+}
+
+/* ─── Glass Card ─────────────────────────────────────────────────────────── */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-active);
+}
+
+.glass-card-glow {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--border-active);
+  border-radius: 12px;
+  box-shadow: var(--glow-cyan);
+}
+
+/* ─── Gradient Text ──────────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, #22d3ee 0%, #34d399 50%, #22d3ee 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, #fbbf24 0%, #fb7185 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(17, 24, 39, 0.5) 25%,
+    rgba(30, 41, 59, 0.5) 50%,
+    rgba(17, 24, 39, 0.5) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ─── Terminal Styles ────────────────────────────────────────────────────── */
+.terminal-input {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  caret-color: var(--accent-emerald);
+}
+
+.terminal-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ─── Data Typography ────────────────────────────────────────────────────── */
+.font-mono-data {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Interactive States ─────────────────────────────────────────────────── */
+.interactive {
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.interactive:hover {
+  transform: translateY(-1px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* ─── Custom Focus Ring ──────────────────────────────────────────────────── */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-cyan);
+}
+
+/* ─── Score Bars ─────────────────────────────────────────────────────────── */
+.score-bar {
+  position: relative;
+  height: 6px;
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* ─── Heatmap Cell ───────────────────────────────────────────────────────── */
+.heatmap-cell {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.8);
+  z-index: 10;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+}
+
+/* ─── Nav Item ───────────────────────────────────────────────────────────── */
+.nav-item {
+  position: relative;
+  transition: all 0.15s ease;
+  border-radius: 8px;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 0;
+  background: var(--accent-cyan);
+  border-radius: 0 2px 2px 0;
+  transition: height 0.2s ease;
+}
+
+.nav-item.active::before {
+  height: 60%;
+}
+
+.nav-item.active {
+  background: rgba(34, 211, 238, 0.08);
+  color: var(--accent-cyan);
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ─── Date Input Dark Theme ──────────────────────────────────────────────── */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7);
+  cursor: pointer;
+}
+
+/* ─── Circular Progress ──────────────────────────────────────────────────── */
+.circular-progress {
+  transform: rotate(-90deg);
+}
+
+.circular-progress-track {
+  fill: none;
+  stroke: rgba(30, 41, 59, 0.5);
+}
+
+.circular-progress-bar {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease;
+}
