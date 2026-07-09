@@ -48,7 +48,7 @@ export async function importChart(
   rawHtml: string,
   marketCode?: string
 ): Promise<{ message: string; stats: ImportStats }> {
-  return fetchApi('/import/chart', {
+  return fetchApi('/charts/import', {
     method: 'POST',
     body: JSON.stringify({ raw_html: rawHtml, market_code: marketCode }),
   });
@@ -60,7 +60,7 @@ export async function uploadFile(
   const formData = new FormData();
   formData.append('file', file);
 
-  const url = `${BASE_URL}/import/file`;
+  const url = `${BASE_URL}/charts/upload`;
   const response = await fetch(url, {
     method: 'POST',
     body: formData,
