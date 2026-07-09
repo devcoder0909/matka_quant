@@ -145,8 +145,8 @@ async def run_analysis(
             # SQLAlchemy-style: assume a results table
             from sqlalchemy import text
             query = text(
-                "SELECT date, open_patti, open_ank, jodi, close_ank, close_patti, market_code "
-                "FROM results WHERE market_id = :mid AND date < :td ORDER BY date"
+                "SELECT result_date as date, open_patti, open_ank, jodi, close_ank, close_patti "
+                "FROM historical_results WHERE market_id = :mid AND result_date <= :td ORDER BY result_date"
             )
             result = await db.execute(query, {"mid": market_id, "td": target_date})
             rows = result.fetchall()
