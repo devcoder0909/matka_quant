@@ -18,6 +18,9 @@ class CommandRequest(BaseModel):
     command: str
 from typing import Any
 
+from sqlalchemy import func
+from app.models.historical_result import HistoricalResult
+
 @router.post("/run", response_model=Any)
 async def start_analysis(request: AnalysisRequest, db: AsyncSession = Depends(get_db)):
     """
@@ -31,7 +34,23 @@ async def start_analysis(request: AnalysisRequest, db: AsyncSession = Depends(ge
         )
     
     try:
-        result = await run_analysis(db, market.id, request.target_date, request.market_code)
+        if not request.target_date:
+            # Smart Prediction: Find the latest imported result date and add 1 day
+            max_date_query = await db.execute(
+                select(func.max(HistoricalResult.result_date))
+                .where(HistoricalResult.market_id == market.id)
+            )
+            max_date = max_date_query.scalar()
+            if max_date:
+                from datetime import timedelta
+                target_date_str = (max_date + timedelta(days=1)).strftime("%Y-%m-%d")
+            else:
+                from datetime import datetime
+                target_date_str = datetime.now().strftime("%Y-%m-%d")
+        else:
+            target_date_str = request.target_date.strftime("%Y-%m-%d")
+            
+        result = await run_analysis(db, market.id, target_date_str, request.market_code)
         return result
     except Exception as e:
         raise HTTPException(

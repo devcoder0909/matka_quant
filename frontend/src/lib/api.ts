@@ -84,11 +84,15 @@ export async function uploadFile(
 
 export async function runAnalysis(
   marketCode: string,
-  targetDate: string
+  targetDate?: string
 ): Promise<any> {
+  const body: any = { market_code: marketCode };
+  if (targetDate) {
+    body.target_date = targetDate;
+  }
   return fetchApi<any>('/analysis/run', {
     method: 'POST',
-    body: JSON.stringify({ market_code: marketCode, target_date: targetDate }),
+    body: JSON.stringify(body),
   });
 }
 

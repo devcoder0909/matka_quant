@@ -13,8 +13,7 @@ export default function Home() {
   const fetchPredictions = async () => {
     setLoading(true);
     try {
-      const today = new Date().toISOString().split('T')[0];
-      const data = await runAnalysis("KALYAN", today);
+      const data = await runAnalysis("KALYAN");
       
       if (data && data.candidates) {
         // Map candidates to the format expected by UI

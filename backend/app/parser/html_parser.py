@@ -503,7 +503,7 @@ def parse_html_chart(raw_html: str) -> List[Dict[str, Any]]:
         return []
 
     try:
-        soup = BeautifulSoup(raw_html, "html5lib")
+        soup = BeautifulSoup(raw_html, "lxml")
     except Exception:
         try:
             soup = BeautifulSoup(raw_html, "html.parser")
