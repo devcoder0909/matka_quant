@@ -319,6 +319,9 @@ def _extract_weekly_grid(table: Tag, market_name: Optional[str], grid_type: str)
     # Calculate true number of logical columns including colspans
     day_col_count = sum(1 for c in header_cells if any(dn in _clean_cell_text(c).lower() for dn in ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "monday", "tuesday"]))
     num_days = max(day_col_count, 6)
+    
+    # Check if header has colspan="3", which guarantees it's the 3-column format
+    is_3col_layout = any(c.get("colspan") in ("3", 3) for c in header_cells)
 
     records: list[dict] = []
 
@@ -330,10 +333,6 @@ def _extract_weekly_grid(table: Tag, market_name: Optional[str], grid_type: str)
 
         first_col = texts[0]
         week_dates = _dates_for_week_row(first_col, num_days)
-
-        # Check if this is a 3-column per day layout (e.g. 19 cells for 6 days: 1 date + 6*3)
-        # or (22 cells for 7 days: 1 date + 7*3)
-        is_3col_layout = len(texts) >= (1 + num_days * 3) - 2 and len(texts) > 10
 
         if is_3col_layout:
             for day_idx in range(num_days):
