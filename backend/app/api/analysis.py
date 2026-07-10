@@ -43,14 +43,14 @@ async def start_analysis(request: AnalysisRequest, db: AsyncSession = Depends(ge
             max_date = max_date_query.scalar()
             if max_date:
                 from datetime import timedelta
-                target_date_str = (max_date + timedelta(days=1)).strftime("%Y-%m-%d")
+                target_date_val = max_date + timedelta(days=1)
             else:
                 from datetime import datetime
-                target_date_str = datetime.now().strftime("%Y-%m-%d")
+                target_date_val = datetime.now().date()
         else:
-            target_date_str = request.target_date.strftime("%Y-%m-%d")
+            target_date_val = request.target_date
             
-        result = await run_analysis(db, market.id, target_date_str, request.market_code)
+        result = await run_analysis(db, market.id, target_date_val, request.market_code)
         return result
     except Exception as e:
         raise HTTPException(
