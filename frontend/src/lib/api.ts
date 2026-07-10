@@ -52,10 +52,22 @@ export async function importChart(
   rawHtml: string,
   marketCode?: string
 ): Promise<{ message: string; stats: ImportStats }> {
-  return fetchApi('/charts/import', {
+  const data: any = await fetchApi('/charts/import', {
     method: 'POST',
     body: JSON.stringify({ raw_html: rawHtml, market_code: marketCode }),
   });
+  return {
+    message: 'Chart successfully processed',
+    stats: {
+      total_records: data.total_records || 0,
+      valid_records: data.valid_records || 0,
+      duplicate_records: data.duplicate_records || 0,
+      invalid_records: data.invalid_records || 0,
+      missing_records: data.missing_records || 0,
+      data_quality_score: data.data_quality_score || 0,
+      data_completeness_score: data.data_completeness_score || 0,
+    },
+  };
 }
 
 export async function uploadFile(
@@ -77,7 +89,19 @@ export async function uploadFile(
     );
   }
 
-  return response.json();
+  const data: any = await response.json();
+  return {
+    message: 'File successfully processed',
+    stats: {
+      total_records: data.total_records || 0,
+      valid_records: data.valid_records || 0,
+      duplicate_records: data.duplicate_records || 0,
+      invalid_records: data.invalid_records || 0,
+      missing_records: data.missing_records || 0,
+      data_quality_score: data.data_quality_score || 0,
+      data_completeness_score: data.data_completeness_score || 0,
+    },
+  };
 }
 
 // ─── Analysis ────────────────────────────────────────────────────────────────
